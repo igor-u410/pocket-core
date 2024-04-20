@@ -53,12 +53,14 @@ from creating and deleting accounts; to importing and exporting accounts.`,
 }
 
 var pwd, oldPwd, decryptPwd, encryptPwd string
+var offline bool
 
 func init() {
 	buildMultisig.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
 	createCmd.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
 	deleteCmd.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
 	sendTxCmd.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
+	sendTxCmd.Flags().BoolVar(&offline, "offline", false, "build and sign transaction offline. The output can be broadcasted later using the send-raw-tx command")
 	setValidator.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
 	signCmd.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
 	signMS.Flags().StringVar(&pwd, "pwd", "", "passphrase used by the cmd, non empty usage bypass interactive prompt")
@@ -537,6 +539,13 @@ Prompts the user for <fromAddr> account passphrase.`,
 			fmt.Println(err)
 			return
 		}
+
+		// if offline, print the transaction and return
+		if offline {
+			fmt.Println(string(j))
+			return
+		}
+
 		resp, err := QueryRPC(SendRawTxPath, j)
 		if err != nil {
 			fmt.Println(err)

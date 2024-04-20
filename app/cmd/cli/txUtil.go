@@ -636,6 +636,13 @@ func newTxBz(cdc *codec.Codec, msg sdk.ProtoMsg, fromAddr sdk.Address, chainID s
 	}
 	s := authTypes.StdSignature{PublicKey: pubKey, Signature: sig}
 	tx := authTypes.NewTx(msg, fees, s, memo, entropy)
+	// marshal tx to json
+	txJson, err := json.Marshal(tx)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(string(txJson))
 	if legacyCodec {
 		return auth.DefaultTxEncoder(cdc)(tx, 0)
 	}
